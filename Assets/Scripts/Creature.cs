@@ -45,13 +45,13 @@ public class Creature : MonoBehaviour
 
         for (int i = 0; i < n - 1; i++)
         {
-            int randIndex = 0;
-            do
-            {
-                randIndex = Random.Range(0, nodesLeft.Count);
-            } while (nodesLeft[randIndex] == i);
-            var nextNode = nodesLeft[randIndex]; 
-            nodesLeft.RemoveAt(randIndex);
+            //int randIndex = 0;
+            //do
+            //{
+            //    randIndex = Random.Range(0, nodesLeft.Count);
+            //} while (nodesLeft[randIndex] == i);
+            var nextNode = nodesLeft[(i+1) % n];
+            //nodesLeft.Remove(nextNode);
 
             int additionalMuscles = 0;
             if (additionalMuscleCount > 0)
