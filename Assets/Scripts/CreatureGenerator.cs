@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class CreatureGenerator : MonoBehaviour
 {
-    [SerializeField] Creature creature;
+    [SerializeField] GameObject creaturePrefab;
 
     private void Start()
     {
-        creature.SetUp(3);
-        creature.gameObject.SetActive(false);
-        //yield return new WaitForEndOfFrame();
-        creature.gameObject.SetActive(true);
+        //var creature = Instantiate(creaturePrefab, new Vector3(0f, 2f, 0f), Quaternion.identity);
+        //creature.GetComponent<Creature>().CreateRandom(3);
+        //creature.SetActive(false);
+        //creature.SetActive(true);
+        //Debug.Break();
+        for (int i = 0; i < 30; i++)
+        {
+            var creature = Instantiate(creaturePrefab, new Vector3(0f, 2f, 0f), Quaternion.identity);
+            creature.GetComponent<Creature>().CreateRandom((i % 3) + 3);
+            creature.SetActive(false);
+            creature.SetActive(true);
+        }
     }
 }
