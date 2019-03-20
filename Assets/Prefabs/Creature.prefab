@@ -131,6 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccee97b7925fa0346bb6b6aa40a5cb2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MuscleCount: 0
   joints: []
   extenders: []
 --- !u!1 &7884855371100874203
@@ -264,6 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccee97b7925fa0346bb6b6aa40a5cb2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MuscleCount: 0
   joints: []
   extenders: []
 --- !u!1 &7884855371313880867
@@ -321,6 +323,8 @@ MonoBehaviour:
   - {fileID: 7884855370852506208}
   - {fileID: 7884855372190281626}
   easyButtonsNodeCount: 3
+  minLengthRandom: 0.5
+  maxLengthRandom: 1
 --- !u!1 &7884855371768092694
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,6 +456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccee97b7925fa0346bb6b6aa40a5cb2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MuscleCount: 0
   joints: []
   extenders: []
 --- !u!1 &7884855372190281629
@@ -585,6 +590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccee97b7925fa0346bb6b6aa40a5cb2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MuscleCount: 0
   joints: []
   extenders: []
 --- !u!1 &7884855372282504920
@@ -718,5 +724,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccee97b7925fa0346bb6b6aa40a5cb2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MuscleCount: 0
   joints: []
   extenders: []

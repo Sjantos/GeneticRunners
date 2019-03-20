@@ -6,6 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class Node : MonoBehaviour
 {
+    public int MuscleCount = 0;
     [SerializeField] SliderJoint2D[] joints;
     [SerializeField] SliderJoint2DExtender[] extenders;
 
@@ -39,6 +40,7 @@ public class Node : MonoBehaviour
 
     public void Reset()
     {
+        MuscleCount = 0;
         gameObject.SetActive(false);
         foreach (var component in GetComponents<SliderJoint2D>())
         {

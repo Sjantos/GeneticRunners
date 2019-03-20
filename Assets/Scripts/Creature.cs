@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Creature : MonoBehaviour
 {
@@ -32,8 +33,17 @@ public class Creature : MonoBehaviour
 
     public void CreateRandom(int size)
     {
+        List<Node> refreshedNodes = new List<Node>();
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            if (i < size)
+                refreshedNodes.Add(nodes[i]);
+            else
+                DestroyImmediate(nodes[i].gameObject);
+        }
+        nodes = refreshedNodes.ToArray();
+
         RepositionNodesRandomly();
-        //int n = Random.Range(3, 6);
         int n = size;
         int additionalMuscleCount = Random.Range(0, ((n * (n - 1)) / 2) - (n - 1));
         Debug.Log(string.Format("nodeCount={0} muscleCount={1}", n, (additionalMuscleCount + (n - 1))));
@@ -43,64 +53,67 @@ public class Creature : MonoBehaviour
             nodesLeft.Add(i);
         }
 
-        for (int i = 0; i < n - 1; i++)
+        //base connections
+        List<int> baseConnectedNodes = new List<int>() { 0 };
+        var randomIndex = Random.Range(1, nodes.Length);
+        baseConnectedNodes.Add(randomIndex);
+        var secondNode = nodes[randomIndex];
+        var firstDist = Vector3.Distance(nodes[0].transform.position, secondNode.transform.position);
+        nodes[0].MuscleCount++;
+        secondNode.MuscleCount++;
+        nodes[0].SetUp(Random.Range(0f, 1f), new Muscle[]
         {
-            //int randIndex = 0;
-            //do
-            //{
-            //    randIndex = Random.Range(0, nodesLeft.Count);
-            //} while (nodesLeft[randIndex] == i);
-            var nextNode = nodesLeft[(i+1) % n];
-            //nodesLeft.Remove(nextNode);
+            new Muscle()
+            {
+                baseObj = nodes[0].gameObject,
+                connectedObj = secondNode.Rigidbody2D,
+                minLength = firstDist - Random.Range(0f, minLengthRandom),
+                maxLength = firstDist + Random.Range(0f, maxLengthRandom)
+            }
+        });
+        secondNode.SetUp(Random.Range(0f, 1f), new Muscle[] { });
 
-            int additionalMuscles = 0;
-            if (additionalMuscleCount > 0)
-                additionalMuscles = Random.Range(0, additionalMuscleCount < (n-2) ? additionalMuscleCount : (n-2));
-            additionalMuscleCount -= additionalMuscles;
-
-            List<Muscle> muscleList = new List<Muscle>();
-            //base - to make sure all nodes are connected
-            var dist = Vector3.Distance(nodes[i].transform.position, nodes[nextNode].transform.position);
-            Debug.Log(string.Format("Connecting nodes {0} with node {1}", i, nextNode));
-            muscleList.Add(new Muscle()
+        for (int i = 1; i < n; i++)
+        {
+            if (baseConnectedNodes.Contains(i)) //(nodes[i].MuscleCount != 0)
+                continue;
+            var second = nodes[baseConnectedNodes[Random.Range(0, baseConnectedNodes.Count)]];
+            var d = Vector3.Distance(nodes[i].transform.position, second.transform.position);
+            nodes[i].MuscleCount++;
+            second.MuscleCount++;
+            nodes[i].SetUp(Random.Range(0f, 1f), new Muscle[]
+            {
+            new Muscle()
             {
                 baseObj = nodes[i].gameObject,
-                connectedObj = nodes[nextNode].Rigidbody2D,
-                minLength = dist - Random.Range(0f, minLengthRandom),
-                maxLength = dist + Random.Range(0f, maxLengthRandom)
+                connectedObj = second.Rigidbody2D,
+                minLength = d - Random.Range(0f, minLengthRandom),
+                maxLength = d + Random.Range(0f, maxLengthRandom)
+            }
             });
-            ////now additional muscles
-            //List<int> usedNodes = new List<int>() { i, nextNode };
-            //for (int m = 0; m < additionalMuscles; m++)
-            //{
-            //    int next = 0;
-            //    do
-            //    {
-            //        next = Random.Range(0, n);
-            //    } while (usedNodes.Contains(next));
-            //    usedNodes.Add(next);
-            //    var d = Vector3.Distance(nodes[i].transform.position, nodes[next].transform.position);
-            //    muscleList.Add(new Muscle()
-            //    {
-            //        baseObj = nodes[i].gameObject,
-            //        connectedObj = nodes[next].Rigidbody2D,
-            //        minLength = d - Random.Range(0f, minLengthRandom),
-            //        maxLength = d + Random.Range(0f, maxLengthRandom)
-            //    });
-            //}
-
-            nodes[i].SetUp(Random.Range(0f, 1f), muscleList.ToArray());
-            Debug.Log("Finished creating one node and it's connections");
         }
-
-        nodes[n - 1].SetUp(Random.Range(0f, 1f), new Muscle[] { });
     }
 
     private void RepositionNodesRandomly()
     {
         for (int i = 0; i < nodes.Length; i++)
         {
-            nodes[i].transform.localPosition = new Vector3(Random.Range(-2.5f, 2.5f), Random.Range(-2.5f, 2.5f), 0f);
+            var goodPosition = true;
+            var possiblePosition = Vector3.zero;
+            do
+            {
+                goodPosition = true;
+                possiblePosition = new Vector3(Random.Range(-2.5f, 2.5f), Random.Range(-2.5f, 2.5f), 0f);
+                for (int j = i - 1; j >= 0; j--)
+                {
+                    if (Vector3.Distance(possiblePosition, nodes[j].gameObject.transform.position) < 2 * minLengthRandom)
+                    {
+                        goodPosition = false;
+                        break;
+                    }
+                } 
+            } while (!goodPosition);
+            nodes[i].transform.localPosition = possiblePosition;
         }
     }
 
