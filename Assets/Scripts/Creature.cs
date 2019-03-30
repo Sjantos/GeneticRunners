@@ -3,6 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+public enum CrossoverMethod
+{
+    //PMX, //not working for positions, they are not unique
+    OX,
+    OnePoint
+}
+
+public enum MutationMethod
+{
+    Swap,
+    Scramble,
+    Inversion
+}
+
 public class Creature : MonoBehaviour
 {
     [SerializeField] GameObject nodePrefab;
@@ -15,24 +29,38 @@ public class Creature : MonoBehaviour
     private Vector3[] positions;
     private int[] structure;
 
-    [EasyButtons.Button("SetUp")]
-    public void SetUp()
+
+    public Vector3 GetAvgPosition()
     {
-        SetUp(easyButtonsNodeCount);
+        var pos = Vector3.zero;
+        foreach (var node in nodes)
+            pos += node.transform.position;
+        pos /= nodes.Length;
+        return pos;
     }
 
-    [EasyButtons.Button("Reset")]
-    public void Reset()
+    public void CreateFromParents(Creature c1, Creature c2, CrossoverMethod method)
     {
+        if (c1.positions.Length != c1.positions.Length)
+        {
+            Debug.LogError("Different creature size crossing is not supported");
+            return;
+        }
+
+        structure = GeneticOperators.Crossover(c1.structure, c2.structure, method);
+        positions = GeneticOperators.Crossover(c1.positions, c2.positions, method);
+        nodes = new Node[positions.Length];
+        for (int i = 0; i < positions.Length; i++)
+        {
+            var newNode = Instantiate(nodePrefab, transform);
+            newNode.transform.localPosition = positions[i];
+            nodes[i] = newNode.GetComponent<Node>();
+        }
+        CreateConnectionsInStructure();
         foreach (var node in nodes)
         {
-            node.Reset();
+            node.Enable();
         }
-    }
-
-    public void CreateRandom()
-    {
-        //CreateRandom(Random.Range(3, 6));
     }
 
     public void CreateRandom(int size)
@@ -78,9 +106,5 @@ public class Creature : MonoBehaviour
                 nodes[parentIndex].AddConnectedNode(nodes[i]);
             }
         }
-    }
-
-    public void SetUp(int nodeCount)
-    {
     }
 }
