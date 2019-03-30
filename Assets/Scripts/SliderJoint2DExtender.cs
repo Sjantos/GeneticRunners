@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class SliderJoint2DExtender : MonoBehaviour
 {
+    [SerializeField] float maxDistance = 15f;
     [SerializeField] SliderJoint2D joint;
 
-    [SerializeField] float changeTime = 0.5f;
+    [SerializeField] float changeTime = 0.25f;
     //[SerializeField] bool shorty = false;
     [SerializeField] bool shorten = false;
 
@@ -19,35 +20,23 @@ public class SliderJoint2DExtender : MonoBehaviour
 
     private void Update()
     {
-        //Debug.Log(joint.limitState);
-
-        //if (shorten.HasValue)
-        //{
-        //    if (shorten.Value && joint.limitState == JointLimitState2D.LowerLimit)
-        //    {
-        //        Debug.Log("LowerLimit");
-        //        joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
-        //        shorten = false;
-        //        return;
-        //    }
-
-        //    if (!shorten.Value && joint.limitState == JointLimitState2D.UpperLimit)
-        //    {
-        //        Debug.Log("IpperLimit");
-        //        joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
-        //        shorten = true;
-        //        return;
-        //    }
-        //    shorty = shorten.Value;
-        //}
-
-        timer += Time.fixedDeltaTime;
+        timer += Time.deltaTime;
         if (timer >= changeTime)
         {
             timer = 0f;
             joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
 
             shorten = !shorten;
+        }
+        else
+        {
+            if (Vector3.Distance(transform.position, joint.connectedBody.transform.position) >= maxDistance)
+            {
+                timer = 0f;
+                joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
+
+                shorten = !shorten;
+            }
         }
     }
 }
