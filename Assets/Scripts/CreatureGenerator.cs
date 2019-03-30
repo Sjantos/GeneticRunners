@@ -9,19 +9,20 @@ public class CreatureGenerator : MonoBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < 30; i++)
-        {
-            creature = Instantiate(creaturePrefab, new Vector3(0f, 2f, 0f), Quaternion.identity);
-            creature.GetComponent<Creature>().CreateRandom((i % 3) + 3);
-            creature.SetActive(false);
-            creature.SetActive(true);
-        }
+        //for (int i = 0; i < 1; i++)
+        //{
+        //    creature = Instantiate(creaturePrefab, new Vector3(0f, 2f, 0f), Quaternion.identity);
+        //    creature.GetComponent<Creature>().CreateRandom(8);//(i % 3) + 3);
+        //    creature.SetActive(false);
+        //    creature.SetActive(true);
+        //}
     }
-
+    [ExecuteInEditMode]
+    [EasyButtons.Button]
     private void InstantiateCreatur()
     {
         creature = Instantiate(creaturePrefab, new Vector3(0f, 2f, 0f), Quaternion.identity);
-        creature.GetComponent<Creature>().CreateRandom(3);
+        creature.GetComponent<Creature>().CreateRandom(8);
         creature.SetActive(false);
         creature.SetActive(true);
     }

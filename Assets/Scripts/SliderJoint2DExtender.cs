@@ -6,34 +6,47 @@ public class SliderJoint2DExtender : MonoBehaviour
 {
     [SerializeField] SliderJoint2D joint;
 
-    [SerializeField] float changeTime = 0.25f;
-    [SerializeField] bool shorten = true;
+    [SerializeField] float changeTime = 0.5f;
+    //[SerializeField] bool shorty = false;
+    [SerializeField] bool shorten = false;
 
-    private JointMotor2D motor;
     private float timer = 0f;
 
-    private void Start()
+    public void Init(SliderJoint2D slider)
     {
-        joint = GetComponent<SliderJoint2D>();
-        motor = joint.motor;
+        joint = slider;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
+        //Debug.Log(joint.limitState);
+
+        //if (shorten.HasValue)
+        //{
+        //    if (shorten.Value && joint.limitState == JointLimitState2D.LowerLimit)
+        //    {
+        //        Debug.Log("LowerLimit");
+        //        joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
+        //        shorten = false;
+        //        return;
+        //    }
+
+        //    if (!shorten.Value && joint.limitState == JointLimitState2D.UpperLimit)
+        //    {
+        //        Debug.Log("IpperLimit");
+        //        joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
+        //        shorten = true;
+        //        return;
+        //    }
+        //    shorty = shorten.Value;
+        //}
+
         timer += Time.fixedDeltaTime;
-        if(timer >= changeTime)
+        if (timer >= changeTime)
         {
             timer = 0f;
-            if (shorten)
-            {
-                motor.motorSpeed *= -1f;
-                joint.motor = motor;
-            }
-            else
-            {
-                motor.motorSpeed *= -1f;
-                joint.motor = motor;
-            }
+            joint.SetMotorSpeed(joint.motor.motorSpeed * -1f);
+
             shorten = !shorten;
         }
     }

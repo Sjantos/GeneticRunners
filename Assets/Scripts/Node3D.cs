@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(Collider2D))]
-public class Node : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
+public class Node3D : MonoBehaviour
 {
     public int MuscleCount = 0;
-    [SerializeField] SliderJoint2D[] joints;
+    [SerializeField] SpringJoint[] joints;
     [SerializeField] SliderJoint2DExtender[] extenders;
 
     public Rigidbody2D Rigidbody2D {  get { return GetComponent<Rigidbody2D>(); } }
@@ -18,13 +18,13 @@ public class Node : MonoBehaviour
 
     private JointMotor2D defaultMotor = new JointMotor2D()
     {
-        motorSpeed = 5f,
-        maxMotorTorque = 100f
+        motorSpeed = 2f,
+        maxMotorTorque = 100000f
     };
 
     public void Enable()
     {
-        joints = addedJoints.ToArray();
+        //joints = addedJoints.ToArray();
         extenders = jointsExtenders.ToArray();
         gameObject.SetActive(true);
     }
@@ -35,7 +35,7 @@ public class Node : MonoBehaviour
         joint.autoConfigureAngle = false;
         joint.autoConfigureConnectedAnchor = false;
         addedJoints.Add(joint);
-        joint.motor = new JointMotor2D() { motorSpeed = 5f, maxMotorTorque = 5f };
+        joint.motor = defaultMotor;
         joint.connectedBody = other.Rigidbody2D;
         var distance = Vector3.Distance(transform.position, other.transform.position);
         joint.limits = new JointTranslationLimits2D()
@@ -54,28 +54,28 @@ public class Node : MonoBehaviour
 
     public void SetUp(float friction, Muscle[] muscles)
     {
-        joints = new SliderJoint2D[muscles.Length];
-        extenders = new SliderJoint2DExtender[muscles.Length];
-        for (int i = 0; i < muscles.Length; i++)
-        {
-            joints[i] = gameObject.AddComponent<SliderJoint2D>();
-            joints[i].connectedBody = muscles[i].connectedObj;
-            joints[i].motor = new JointMotor2D()
-            {
-                motorSpeed = 5f,
-                maxMotorTorque = 100000f
-            };
-            extenders[i] = gameObject.AddComponent<SliderJoint2DExtender>();
-            var limits = joints[i].limits;
-            limits.min = muscles[i].minLength;
-            limits.max = muscles[i].maxLength;
-            joints[i].angle = muscles[i].Angle;
-            joints[i].limits = limits;
-            joints[i].useLimits = true;
-            joints[i].useMotor = true;
-            joints[i].autoConfigureAngle = false;
-        }
-        gameObject.SetActive(true);
+        //joints = new SliderJoint2D[muscles.Length];
+        //extenders = new SliderJoint2DExtender[muscles.Length];
+        //for (int i = 0; i < muscles.Length; i++)
+        //{
+        //    joints[i] = gameObject.AddComponent<SliderJoint2D>();
+        //    joints[i].connectedBody = muscles[i].connectedObj;
+        //    joints[i].motor = new JointMotor2D()
+        //    {
+        //        motorSpeed = 5f,
+        //        maxMotorTorque = 100000f
+        //    };
+        //    extenders[i] = gameObject.AddComponent<SliderJoint2DExtender>();
+        //    var limits = joints[i].limits;
+        //    limits.min = muscles[i].minLength;
+        //    limits.max = muscles[i].maxLength;
+        //    joints[i].angle = muscles[i].Angle;
+        //    joints[i].limits = limits;
+        //    joints[i].useLimits = true;
+        //    joints[i].useMotor = true;
+        //    joints[i].autoConfigureAngle = false;
+        //}
+        //gameObject.SetActive(true);
     }
 
     public void Reset()
