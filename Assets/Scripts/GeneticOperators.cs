@@ -9,8 +9,8 @@ public static class GeneticOperators
     {
         switch (method)
         {
-            case CrossoverMethod.PMX:
-                return PMXCrossover(array1, array2);
+            //case CrossoverMethod.PMX:
+            //    return PMXCrossover(array1, array2);
             case CrossoverMethod.OX:
                 return OXCrossover(array1, array2);
             case CrossoverMethod.OnePoint:
@@ -24,8 +24,8 @@ public static class GeneticOperators
     {
         switch (method)
         {
-            case CrossoverMethod.PMX:
-                return PMXCrossover(array1, array2);
+            //case CrossoverMethod.PMX:
+            //    return PMXCrossover(array1, array2);
             case CrossoverMethod.OX:
                 return OXCrossover(array1, array2);
             case CrossoverMethod.OnePoint:
@@ -39,6 +39,8 @@ public static class GeneticOperators
     {
         switch (method)
         {
+            case MutationMethod.None:
+                return solution;
             case MutationMethod.Swap:
                 return SwapMutation(solution);
             case MutationMethod.Scramble:
@@ -48,6 +50,24 @@ public static class GeneticOperators
             default:
                 return new T[] { };
         }
+    }
+    private static int? randompositionmutationcount = null;
+    public static Vector3[] PositionRandomMutation(Vector3[] solution, Vector3Bounds bounds)
+    {
+        solution[Random.Range(0, solution.Length)] = new Vector3(
+                Random.Range(bounds.minX, bounds.maxX),
+                Random.Range(bounds.minY, bounds.maxY),
+                Random.Range(bounds.minZ, bounds.maxZ));
+        //if (randompositionmutationcount == null)
+        //    randompositionmutationcount = Mathf.RoundToInt(Mathf.Sqrt((float)solution.Length));
+        //for (int i = 0; i < randompositionmutationcount; i++)
+        //{
+        //    solution[Random.Range(0, solution.Length)] = new Vector3(
+        //        Random.Range(bounds.minX, bounds.maxX),
+        //        Random.Range(bounds.minY, bounds.maxY),
+        //        Random.Range(bounds.minZ, bounds.maxZ));
+        //}
+        return solution;
     }
 
     private static int[] OnePointCrossover(int[] mother, int[] father)

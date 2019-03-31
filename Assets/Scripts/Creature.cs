@@ -12,23 +12,30 @@ public enum CrossoverMethod
 
 public enum MutationMethod
 {
+    None,
     Swap,
     Scramble,
     Inversion
+}
+
+public class CreatureData
+{
+    public Vector3[] positions;
+    public int[] structure;
 }
 
 public class Creature : MonoBehaviour
 {
     [SerializeField] GameObject nodePrefab;
     [SerializeField] Node[] nodes;
-    [SerializeField] int easyButtonsNodeCount = 3;
-
-    [SerializeField] float minLengthRandom = 0.5f;
-    [SerializeField] float maxLengthRandom = 1f;
 
     private Vector3[] positions;
     private int[] structure;
 
+    public CreatureData GetData()
+    {
+        return new CreatureData() { positions = this.positions, structure = this.structure };
+    }
 
     public Vector3 GetAvgPosition()
     {
@@ -39,7 +46,7 @@ public class Creature : MonoBehaviour
         return pos;
     }
 
-    public void CreateFromParents(Creature c1, Creature c2, CrossoverMethod method)
+    public void CreateFromParents(CreatureData c1, CreatureData c2, CrossoverMethod crossoverMethod, MutationMethod mutationMethod)
     {
         if (c1.positions.Length != c1.positions.Length)
         {
@@ -47,8 +54,10 @@ public class Creature : MonoBehaviour
             return;
         }
 
-        structure = GeneticOperators.Crossover(c1.structure, c2.structure, method);
-        positions = GeneticOperators.Crossover(c1.positions, c2.positions, method);
+        var crossoveredStructure = GeneticOperators.Crossover(c1.structure, c2.structure, crossoverMethod);
+        var crossoveredPositions = GeneticOperators.Crossover(c1.positions, c2.positions, crossoverMethod);
+        structure = GeneticOperators.Mutation(crossoveredStructure, mutationMethod);
+        positions = GeneticOperators.Mutation(crossoveredPositions, mutationMethod);
         nodes = new Node[positions.Length];
         for (int i = 0; i < positions.Length; i++)
         {
@@ -63,10 +72,11 @@ public class Creature : MonoBehaviour
         }
     }
 
-    public void CreateRandom(int size)
+    public void CreateRandom(CreatureData data)
     {
-        CreateRandomStructure(size);
-        CreateAndPositionNodesRandomly(size);
+        this.structure = data.structure;
+        this.positions = data.positions;
+        CreateAndPositionNodes();
         CreateConnectionsInStructure();
         foreach (var node in nodes)
         {
@@ -74,27 +84,27 @@ public class Creature : MonoBehaviour
         }
     }
 
-    private void CreateAndPositionNodesRandomly(int size)
+    private void CreateAndPositionNodes()
     {
-        nodes = new Node[size];
-        positions = new Vector3[size];
-        for (int i = 0; i < size; i++)
+        nodes = new Node[positions.Length];
+        //positions = new Vector3[size];
+        for (int i = 0; i < positions.Length; i++)
         {
-            var randomPosition = new Vector3(Random.Range(-5f, 5f), Random.Range(-2.5f, 2.5f), 0f);
-            positions[i] = randomPosition;
+            //var randomPosition = new Vector3(Random.Range(-5f, 5f), Random.Range(-2.5f, 2.5f), 0f);
+            //positions[i] = randomPosition;
             var newNode = Instantiate(nodePrefab, transform);
-            newNode.transform.localPosition = randomPosition;
+            newNode.transform.localPosition = positions[i];
             nodes[i] = newNode.GetComponent<Node>();
         }
     }
 
-    private void CreateRandomStructure(int size)
-    {
-        structure = new int[size];
-        for (int i = 0; i < size; i++)
-            structure[i] = i;
-        RandomExtension.Shuffle<int>(structure);
-    }
+    //private void CreateRandomStructure(int size)
+    //{
+    //    structure = new int[size];
+    //    for (int i = 0; i < size; i++)
+    //        structure[i] = i;
+    //    RandomExtension.Shuffle<int>(structure);
+    //}
 
     private void CreateConnectionsInStructure()
     {

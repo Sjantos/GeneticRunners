@@ -38,13 +38,13 @@ public class Node : MonoBehaviour
         joint.motor = new JointMotor2D() { motorSpeed = 5f, maxMotorTorque = 50f };
         joint.connectedBody = other.Rigidbody2D;
         //var distance = Vector3.Distance(transform.position, other.transform.position);
-        //joint.limits = new JointTranslationLimits2D()
-        //{
-        //    min = distance - 0.33f,
-        //    max = distance + 0.33f
-        //};
+        joint.limits = new JointTranslationLimits2D()
+        {
+            min = 0f,
+            max = 15f
+        };
         joint.angle = JointAngle(transform.position, other.transform.position);
-        //joint.useLimits = true;
+        joint.useLimits = true;
         joint.useMotor = true;
 
         var extender = gameObject.AddComponent<SliderJoint2DExtender>();
