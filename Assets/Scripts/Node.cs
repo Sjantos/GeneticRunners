@@ -29,7 +29,7 @@ public class Node : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    public void AddConnectedNode(Node other)
+    public void AddConnectedNode(Node other, float timeChanger)
     {
         var joint = gameObject.AddComponent<SliderJoint2D>();
         joint.autoConfigureAngle = false;
@@ -49,7 +49,7 @@ public class Node : MonoBehaviour
 
         var extender = gameObject.AddComponent<SliderJoint2DExtender>();
         jointsExtenders.Add(extender);
-        extender.Init(joint);
+        extender.Init(joint, timeChanger);
     }
 
     public void SetUp(float friction, Muscle[] muscles)

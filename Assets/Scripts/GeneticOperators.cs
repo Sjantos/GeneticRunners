@@ -20,6 +20,21 @@ public static class GeneticOperators
         }
     }
 
+    public static float[] Crossover(float[] array1, float[] array2, CrossoverMethod method)
+    {
+        switch (method)
+        {
+            //case CrossoverMethod.PMX:
+            //    return PMXCrossover(array1, array2);
+            case CrossoverMethod.OX:
+                return OXCrossover(array1, array2);
+            case CrossoverMethod.OnePoint:
+                return OnePointCrossover(array1, array2);
+            default:
+                return new float[] { };
+        }
+    }
+
     public static Vector3[] Crossover(Vector3[] array1, Vector3[] array2, CrossoverMethod method)
     {
         switch (method)
@@ -103,6 +118,31 @@ public static class GeneticOperators
         return solution;
     }
 
+    /// <summary>
+    /// Does not care about TSP-like genom correction
+    /// </summary>
+    private static float[] OnePointCrossover(float[] mother, float[] father)
+    {
+        var solution = new float[mother.Length];
+        for (int i = 0; i < solution.Length; i++)
+            solution[i] = -1f;
+
+        List<int> gapsIndexes = new List<int>();
+        int crossPoint = Random.Range(0, solution.Length);
+        for (int i = 0; i < solution.Length; i++)
+        {
+            if (i < crossPoint)
+                solution[i] = mother[i];
+            else
+                solution[i] = father[i];
+        }
+
+        return solution;
+    }
+
+    /// <summary>
+    /// Does not care about TSP-like genom correction
+    /// </summary>
     private static Vector3[] OnePointCrossover(Vector3[] mother, Vector3[] father)
     {
         var solution = new Vector3?[mother.Length];
@@ -116,21 +156,7 @@ public static class GeneticOperators
             if (i < crossPoint)
                 solution[i] = mother[i];
             else
-            {
-                if (solution.Contains(father[i]))
-                {
-                    gapsIndexes.Add(i);
-                    continue;
-                }
-                else
-                    solution[i] = father[i];
-            }
-        }
-        //fill gaps
-        for (int i = 0; i < gapsIndexes.Count; i++)
-        {
-            var lostGene = father.FirstOrDefault(p => !solution.Contains(p));
-            solution[gapsIndexes[i]] = lostGene;
+                solution[i] = father[i];
         }
 
         return solution.Select(p => p.Value).ToArray();
@@ -260,6 +286,49 @@ public static class GeneticOperators
         while (solutionIndex != leftIndex)
         {
             while (tmpFather[fatherIndex] == -1)
+                fatherIndex = (fatherIndex + 1) % solution.Length;
+
+            solution[solutionIndex] = tmpFather[fatherIndex];
+            solutionIndex = (solutionIndex + 1) % solution.Length;
+            fatherIndex = (fatherIndex + 1) % solution.Length;
+        }
+
+        for (int i = 0; i < solution.Length; i++)
+        {
+            if (solution[i] == -1)
+                throw new System.Exception("OX Crossover went horribly wrong");
+        }
+
+        return solution;
+    }
+
+    private static float[] OXCrossover(float[] mother, float[] father)
+    {
+        var solution = new float[mother.Length];
+        for (int i = 0; i < solution.Length; i++)
+            solution[i] = -1f;
+        int leftIndex = Random.Range(0, solution.Length);
+        int rightIndex = Random.Range(0, solution.Length);
+        if (rightIndex < leftIndex)
+        {
+            int tmp = leftIndex;
+            leftIndex = rightIndex;
+            rightIndex = tmp;
+        }
+
+        //Fill rest with father alleles
+        float[] tmpFather = (float[])father.Clone();
+        for (int i = leftIndex; i <= rightIndex; i++)
+        {
+            solution[i] = mother[i];
+            tmpFather[Find(father, mother[i])] = -1;
+        }
+
+        int fatherIndex = (rightIndex + 1) % solution.Length;
+        int solutionIndex = (rightIndex + 1) % solution.Length;
+        while (solutionIndex != leftIndex)
+        {
+            while (tmpFather[fatherIndex] < 0f) // the same as tmpFather[fatherIndex] == -1f but no float precision dilema
                 fatherIndex = (fatherIndex + 1) % solution.Length;
 
             solution[solutionIndex] = tmpFather[fatherIndex];

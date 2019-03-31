@@ -13,9 +13,10 @@ public class SliderJoint2DExtender : MonoBehaviour
 
     private float timer = 0f;
 
-    public void Init(SliderJoint2D slider)
+    public void Init(SliderJoint2D slider, float timeChanger)
     {
         joint = slider;
+        changeTime = timeChanger;
     }
 
     private void Update()

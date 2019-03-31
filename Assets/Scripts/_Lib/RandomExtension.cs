@@ -50,6 +50,14 @@ public static class RandomExtension
         return tab;
     }
 
+    public static float[] RandomArray(int size, float min, float max)
+    {
+        float[] tab = new float[size];
+        for (int i = 0; i < size; i++)
+            tab[i] = Random.Range(min, max);
+        return tab;
+    }
+
     /// <summary>
     /// Returns array of Vector3s which are constrained to VectorBounds param
     /// </summary>

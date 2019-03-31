@@ -90,12 +90,14 @@ public class GeneticAlgorithm : MonoBehaviour
             var ch1 = new CreatureData()
             {
                 positions = GeneticOperators.Crossover(p1.positions, p2.positions, CrossoverMethod.OnePoint),
-                structure = GeneticOperators.Crossover(p1.structure, p2.structure, CrossoverMethod.OnePoint)
+                structure = GeneticOperators.Crossover(p1.structure, p2.structure, CrossoverMethod.OnePoint),
+                timers = GeneticOperators.Crossover(p1.timers, p2.timers, CrossoverMethod.OnePoint)
             };
             var ch2 = new CreatureData()
             {
                 positions = GeneticOperators.Crossover(p2.positions, p1.positions, CrossoverMethod.OnePoint),
-                structure = GeneticOperators.Crossover(p2.structure, p1.structure, CrossoverMethod.OnePoint)
+                structure = GeneticOperators.Crossover(p2.structure, p1.structure, CrossoverMethod.OnePoint),
+                timers = GeneticOperators.Crossover(p2.timers, p1.timers, CrossoverMethod.OnePoint)
             };
             childrens[i] = ch1;
             childrens[i + 1] = ch2;
@@ -110,6 +112,7 @@ public class GeneticAlgorithm : MonoBehaviour
             {
                 childrens[i].positions = GeneticOperators.PositionRandomMutation(childrens[i].positions, positionBounds);
                 childrens[i].structure = GeneticOperators.Mutation(childrens[i].structure, MutationMethod.Swap);
+                childrens[i].timers = GeneticOperators.Mutation(childrens[i].timers, MutationMethod.Swap);
             }
         }
     }
@@ -175,6 +178,7 @@ public class GeneticAlgorithm : MonoBehaviour
             var data = new CreatureData();
             data.positions = RandomExtension.RandomArray(creatureSize, positionBounds);
             data.structure = RandomExtension.RandomArray(creatureSize);
+            data.timers = RandomExtension.RandomArray(creatureSize, 0.1f, 0.4f);
             currentPopulation[i] = InstantiateCreature(data);
         }
         canRun = true;

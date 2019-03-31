@@ -22,6 +22,7 @@ public class CreatureData
 {
     public Vector3[] positions;
     public int[] structure;
+    public float[] timers;
 }
 
 public class Creature : MonoBehaviour
@@ -31,10 +32,11 @@ public class Creature : MonoBehaviour
 
     private Vector3[] positions;
     private int[] structure;
+    private float[] timers;
 
     public CreatureData GetData()
     {
-        return new CreatureData() { positions = this.positions, structure = this.structure };
+        return new CreatureData() { positions = this.positions, structure = this.structure, timers = this.timers };
     }
 
     public Vector3 GetAvgPosition()
@@ -56,8 +58,10 @@ public class Creature : MonoBehaviour
 
         var crossoveredStructure = GeneticOperators.Crossover(c1.structure, c2.structure, crossoverMethod);
         var crossoveredPositions = GeneticOperators.Crossover(c1.positions, c2.positions, crossoverMethod);
+        var crossoveredTimers = GeneticOperators.Crossover(c1.timers, c2.timers, crossoverMethod);
         structure = GeneticOperators.Mutation(crossoveredStructure, mutationMethod);
         positions = GeneticOperators.Mutation(crossoveredPositions, mutationMethod);
+        timers = GeneticOperators.Mutation(crossoveredTimers, mutationMethod);
         nodes = new Node[positions.Length];
         for (int i = 0; i < positions.Length; i++)
         {
@@ -76,6 +80,7 @@ public class Creature : MonoBehaviour
     {
         this.structure = data.structure;
         this.positions = data.positions;
+        this.timers = data.timers;
         CreateAndPositionNodes();
         CreateConnectionsInStructure();
         foreach (var node in nodes)
@@ -87,24 +92,13 @@ public class Creature : MonoBehaviour
     private void CreateAndPositionNodes()
     {
         nodes = new Node[positions.Length];
-        //positions = new Vector3[size];
         for (int i = 0; i < positions.Length; i++)
         {
-            //var randomPosition = new Vector3(Random.Range(-5f, 5f), Random.Range(-2.5f, 2.5f), 0f);
-            //positions[i] = randomPosition;
             var newNode = Instantiate(nodePrefab, transform);
             newNode.transform.localPosition = positions[i];
             nodes[i] = newNode.GetComponent<Node>();
         }
     }
-
-    //private void CreateRandomStructure(int size)
-    //{
-    //    structure = new int[size];
-    //    for (int i = 0; i < size; i++)
-    //        structure[i] = i;
-    //    RandomExtension.Shuffle<int>(structure);
-    //}
 
     private void CreateConnectionsInStructure()
     {
@@ -113,7 +107,7 @@ public class Creature : MonoBehaviour
             var parentIndex = (i - 1) / 2;
             if (parentIndex >= 0)
             {
-                nodes[parentIndex].AddConnectedNode(nodes[i]);
+                nodes[parentIndex].AddConnectedNode(nodes[i], timers[i]);
             }
         }
     }
