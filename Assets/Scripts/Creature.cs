@@ -6,16 +6,16 @@ using System.Linq;
 public enum CrossoverMethod
 {
     //PMX, //not working for positions, they are not unique
-    OX,
-    OnePoint
+    OnePoint,
+    TwoPoint
 }
 
 public enum MutationMethod
 {
     None,
     Swap,
-    Scramble,
-    Inversion
+    Inversion,
+    Scramble
 }
 
 public class CreatureData

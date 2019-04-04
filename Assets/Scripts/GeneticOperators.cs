@@ -11,8 +11,8 @@ public static class GeneticOperators
         {
             //case CrossoverMethod.PMX:
             //    return PMXCrossover(array1, array2);
-            case CrossoverMethod.OX:
-                return OXCrossover(array1, array2);
+            case CrossoverMethod.TwoPoint:
+                return TwoPointCrossover(array1, array2);
             case CrossoverMethod.OnePoint:
                 return OnePointCrossover(array1, array2);
             default:
@@ -26,8 +26,8 @@ public static class GeneticOperators
         {
             //case CrossoverMethod.PMX:
             //    return PMXCrossover(array1, array2);
-            case CrossoverMethod.OX:
-                return OXCrossover(array1, array2);
+            case CrossoverMethod.TwoPoint:
+                return TwoPointCrossover(array1, array2);
             case CrossoverMethod.OnePoint:
                 return OnePointCrossover(array1, array2);
             default:
@@ -41,8 +41,9 @@ public static class GeneticOperators
         {
             //case CrossoverMethod.PMX:
             //    return PMXCrossover(array1, array2);
-            case CrossoverMethod.OX:
-                return OXCrossover(array1, array2);
+            case CrossoverMethod.TwoPoint:
+                //return OnePointCrossover(array1, array2);
+                return TwoPointCrossover(array1, array2);
             case CrossoverMethod.OnePoint:
                 return OnePointCrossover(array1, array2);
             default:
@@ -259,133 +260,230 @@ public static class GeneticOperators
         return solution.Select(p => p.Value).ToArray();
     }
 
-    private static int[] OXCrossover(int[] mother, int[] father)
+    private static int[] TwoPointCrossover(int[] mother, int[] father)
     {
         var solution = new int[mother.Length];
         for (int i = 0; i < solution.Length; i++)
             solution[i] = -1;
-        int leftIndex = Random.Range(0, solution.Length);
-        int rightIndex = Random.Range(0, solution.Length);
-        if (rightIndex < leftIndex)
+
+        List<int> gapsIndexes = new List<int>();
+        int crossPoint1 = Random.Range(0, solution.Length);
+        int crossPoint2 = Random.Range(0, solution.Length);
+        if(crossPoint2 < crossPoint1)
         {
-            int tmp = leftIndex;
-            leftIndex = rightIndex;
-            rightIndex = tmp;
+            var tmp = crossPoint1;
+            crossPoint1 = crossPoint2;
+            crossPoint2 = tmp;
         }
-
-        //Fill rest with father alleles
-        int[] tmpFather = (int[])father.Clone();
-        for (int i = leftIndex; i <= rightIndex; i++)
-        {
-            solution[i] = mother[i];
-            tmpFather[Find(father, mother[i])] = -1;
-        }
-
-        int fatherIndex = (rightIndex + 1) % solution.Length;
-        int solutionIndex = (rightIndex + 1) % solution.Length;
-        while (solutionIndex != leftIndex)
-        {
-            while (tmpFather[fatherIndex] == -1)
-                fatherIndex = (fatherIndex + 1) % solution.Length;
-
-            solution[solutionIndex] = tmpFather[fatherIndex];
-            solutionIndex = (solutionIndex + 1) % solution.Length;
-            fatherIndex = (fatherIndex + 1) % solution.Length;
-        }
-
         for (int i = 0; i < solution.Length; i++)
         {
-            if (solution[i] == -1)
-                throw new System.Exception("OX Crossover went horribly wrong");
+            if(solution.Contains(father[i]))
+            {
+                gapsIndexes.Add(i);
+                continue;
+            }
+            else
+            {
+                if (i >= crossPoint1 && i <= crossPoint2)
+                    solution[i] = mother[i];
+                else
+                    solution[i] = father[i];
+            }
+
+
+            //if (i < crossPoint1)
+            //    solution[i] = mother[i];
+            //else
+            //{
+            //    if (solution.Contains(father[i]))
+            //    {
+            //        gapsIndexes.Add(i);
+            //        continue;
+            //    }
+            //    else
+            //        solution[i] = father[i];
+            //}
+        }
+        //fill gaps
+        for (int i = 0; i < gapsIndexes.Count; i++)
+        {
+            var lostGene = father.FirstOrDefault(p => !solution.Contains(p));
+            solution[gapsIndexes[i]] = lostGene;
         }
 
         return solution;
+
+        //var solution = new int[mother.Length];
+        //for (int i = 0; i < solution.Length; i++)
+        //    solution[i] = -1;
+        //int leftIndex = Random.Range(0, solution.Length);
+        //int rightIndex = Random.Range(0, solution.Length);
+        //if (rightIndex < leftIndex)
+        //{
+        //    int tmp = leftIndex;
+        //    leftIndex = rightIndex;
+        //    rightIndex = tmp;
+        //}
+
+        ////Fill rest with father alleles
+        //int[] tmpFather = (int[])father.Clone();
+        //for (int i = leftIndex; i <= rightIndex; i++)
+        //{
+        //    solution[i] = mother[i];
+        //    tmpFather[Find(father, mother[i])] = -1;
+        //}
+
+        //int fatherIndex = (rightIndex + 1) % solution.Length;
+        //int solutionIndex = (rightIndex + 1) % solution.Length;
+        //while (solutionIndex != leftIndex)
+        //{
+        //    while (tmpFather[fatherIndex] == -1)
+        //        fatherIndex = (fatherIndex + 1) % solution.Length;
+
+        //    solution[solutionIndex] = tmpFather[fatherIndex];
+        //    solutionIndex = (solutionIndex + 1) % solution.Length;
+        //    fatherIndex = (fatherIndex + 1) % solution.Length;
+        //}
+
+        //for (int i = 0; i < solution.Length; i++)
+        //{
+        //    if (solution[i] == -1)
+        //        throw new System.Exception("OX Crossover went horribly wrong");
+        //}
+
+        //return solution;
     }
 
-    private static float[] OXCrossover(float[] mother, float[] father)
+    private static float[] TwoPointCrossover(float[] mother, float[] father)
     {
         var solution = new float[mother.Length];
         for (int i = 0; i < solution.Length; i++)
             solution[i] = -1f;
-        int leftIndex = Random.Range(0, solution.Length);
-        int rightIndex = Random.Range(0, solution.Length);
-        if (rightIndex < leftIndex)
+
+        List<int> gapsIndexes = new List<int>();
+        int crossPoint1 = Random.Range(0, solution.Length);
+        int crossPoint2 = Random.Range(0, solution.Length);
+        if (crossPoint2 < crossPoint1)
         {
-            int tmp = leftIndex;
-            leftIndex = rightIndex;
-            rightIndex = tmp;
+            var tmp = crossPoint1;
+            crossPoint1 = crossPoint2;
+            crossPoint2 = tmp;
         }
-
-        //Fill rest with father alleles
-        float[] tmpFather = (float[])father.Clone();
-        for (int i = leftIndex; i <= rightIndex; i++)
-        {
-            solution[i] = mother[i];
-            tmpFather[Find(father, mother[i])] = -1;
-        }
-
-        int fatherIndex = (rightIndex + 1) % solution.Length;
-        int solutionIndex = (rightIndex + 1) % solution.Length;
-        while (solutionIndex != leftIndex)
-        {
-            while (tmpFather[fatherIndex] < 0f) // the same as tmpFather[fatherIndex] == -1f but no float precision dilema
-                fatherIndex = (fatherIndex + 1) % solution.Length;
-
-            solution[solutionIndex] = tmpFather[fatherIndex];
-            solutionIndex = (solutionIndex + 1) % solution.Length;
-            fatherIndex = (fatherIndex + 1) % solution.Length;
-        }
-
         for (int i = 0; i < solution.Length; i++)
         {
-            if (solution[i] == -1)
-                throw new System.Exception("OX Crossover went horribly wrong");
+            if (i >= crossPoint1 && i <= crossPoint2)
+                solution[i] = mother[i];
+            else
+                solution[i] = father[i];
         }
 
         return solution;
+
+        //var solution = new float[mother.Length];
+        //for (int i = 0; i < solution.Length; i++)
+        //    solution[i] = -1f;
+        //int leftIndex = Random.Range(0, solution.Length);
+        //int rightIndex = Random.Range(0, solution.Length);
+        //if (rightIndex < leftIndex)
+        //{
+        //    int tmp = leftIndex;
+        //    leftIndex = rightIndex;
+        //    rightIndex = tmp;
+        //}
+
+        ////Fill rest with father alleles
+        //float[] tmpFather = (float[])father.Clone();
+        //for (int i = leftIndex; i <= rightIndex; i++)
+        //{
+        //    solution[i] = mother[i];
+        //    tmpFather[Find(father, mother[i])] = -1;
+        //}
+
+        //int fatherIndex = (rightIndex + 1) % solution.Length;
+        //int solutionIndex = (rightIndex + 1) % solution.Length;
+        //while (solutionIndex != leftIndex)
+        //{
+        //    while (tmpFather[fatherIndex] < 0f) // the same as tmpFather[fatherIndex] == -1f but no float precision dilema
+        //        fatherIndex = (fatherIndex + 1) % solution.Length;
+
+        //    solution[solutionIndex] = tmpFather[fatherIndex];
+        //    solutionIndex = (solutionIndex + 1) % solution.Length;
+        //    fatherIndex = (fatherIndex + 1) % solution.Length;
+        //}
+
+        //for (int i = 0; i < solution.Length; i++)
+        //{
+        //    if (solution[i] == -1)
+        //        throw new System.Exception("OX Crossover went horribly wrong");
+        //}
+
+        //return solution;
     }
 
-    private static Vector3[] OXCrossover(Vector3[] mother, Vector3[] father)
+    private static Vector3[] TwoPointCrossover(Vector3[] mother, Vector3[] father)
     {
-        var solution = new Vector3?[mother.Length];
+        var solution = new Vector3[mother.Length];
         for (int i = 0; i < solution.Length; i++)
-            solution[i] = null;
-        int leftIndex = Random.Range(0, solution.Length);
-        int rightIndex = Random.Range(0, solution.Length);
-        if (rightIndex < leftIndex)
+            solution[i] = Vector3.zero;
+
+        List<int> gapsIndexes = new List<int>();
+        int crossPoint1 = Random.Range(0, solution.Length);
+        int crossPoint2 = Random.Range(0, solution.Length);
+        if (crossPoint2 < crossPoint1)
         {
-            int tmp = leftIndex;
-            leftIndex = rightIndex;
-            rightIndex = tmp;
+            var tmp = crossPoint1;
+            crossPoint1 = crossPoint2;
+            crossPoint2 = tmp;
         }
-
-        //Fill rest with father alleles
-        Vector3?[] tmpFather = (Vector3?[])father.Clone();
-        for (int i = leftIndex; i <= rightIndex; i++)
-        {
-            solution[i] = mother[i];
-            tmpFather[Find(father, mother[i])] = null;
-        }
-
-        int fatherIndex = (rightIndex + 1) % solution.Length;
-        int solutionIndex = (rightIndex + 1) % solution.Length;
-        while (solutionIndex != leftIndex)
-        {
-            while (tmpFather[fatherIndex] == null)
-                fatherIndex = (fatherIndex + 1) % solution.Length;
-
-            solution[solutionIndex] = tmpFather[fatherIndex];
-            solutionIndex = (solutionIndex + 1) % solution.Length;
-            fatherIndex = (fatherIndex + 1) % solution.Length;
-        }
-
         for (int i = 0; i < solution.Length; i++)
         {
-            if (solution[i] == null)
-                throw new System.Exception("OX Crossover went horribly wrong");
+            if (i >= crossPoint1 && i <= crossPoint2)
+                solution[i] = mother[i];
+            else
+                solution[i] = father[i];
         }
 
-        return solution.Select(p => p.Value).ToArray();
+        return solution;
+
+        //var solution = new Vector3?[mother.Length];
+        //for (int i = 0; i < solution.Length; i++)
+        //    solution[i] = null;
+        //int leftIndex = Random.Range(0, solution.Length);
+        //int rightIndex = Random.Range(0, solution.Length);
+        //if (rightIndex < leftIndex)
+        //{
+        //    int tmp = leftIndex;
+        //    leftIndex = rightIndex;
+        //    rightIndex = tmp;
+        //}
+
+        ////Fill rest with father alleles
+        //Vector3?[] tmpFather = (Vector3?[])father.Clone();
+        //for (int i = leftIndex; i <= rightIndex; i++)
+        //{
+        //    solution[i] = mother[i];
+        //    tmpFather[Find(father, mother[i])] = null;
+        //}
+
+        //int fatherIndex = (rightIndex + 1) % solution.Length;
+        //int solutionIndex = (rightIndex + 1) % solution.Length;
+        //while (solutionIndex != leftIndex)
+        //{
+        //    while (tmpFather[fatherIndex] == null)
+        //        fatherIndex = (fatherIndex + 1) % solution.Length;
+
+        //    solution[solutionIndex] = tmpFather[fatherIndex];
+        //    solutionIndex = (solutionIndex + 1) % solution.Length;
+        //    fatherIndex = (fatherIndex + 1) % solution.Length;
+        //}
+
+        //for (int i = 0; i < solution.Length; i++)
+        //{
+        //    if (solution[i] == null)
+        //        throw new System.Exception("OX Crossover went horribly wrong");
+        //}
+
+        //return solution.Select(p => p.Value).ToArray();
     }
 
     /// <summary>

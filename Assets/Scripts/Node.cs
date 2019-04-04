@@ -35,12 +35,12 @@ public class Node : MonoBehaviour
         joint.autoConfigureAngle = false;
         joint.autoConfigureConnectedAnchor = false;
         addedJoints.Add(joint);
-        joint.motor = new JointMotor2D() { motorSpeed = 5f, maxMotorTorque = 50f };
+        joint.motor = new JointMotor2D() { motorSpeed = 5f, maxMotorTorque = 20f };
         joint.connectedBody = other.Rigidbody2D;
         //var distance = Vector3.Distance(transform.position, other.transform.position);
         joint.limits = new JointTranslationLimits2D()
         {
-            min = 0f,
+            min = -15f,
             max = 15f
         };
         joint.angle = JointAngle(transform.position, other.transform.position);
