@@ -29,7 +29,7 @@ public class GeneticAlgorithm : MonoBehaviour
     [SerializeField] int populationSize = 150;
     [SerializeField] int creatureSize = 7;
     [SerializeField] int tournamentSize = 3;
-    [SerializeField] float mutationChance = 0.2f;
+    [SerializeField] float mutationChance = 0.3f;
     [SerializeField] float runTime = 10f;
     [SerializeField] TextMeshProUGUI desc;
 
@@ -48,7 +48,7 @@ public class GeneticAlgorithm : MonoBehaviour
     private float timer = 0f;
     private float bestEverSolution = -100f;
     private int generationCounter = 0;
-    private List<Triple<float>> saveData = new List<Triple<float>>();
+    private List<float[]> saveData = new List<float[]>();
 
     private void Start()
     {
@@ -71,83 +71,112 @@ public class GeneticAlgorithm : MonoBehaviour
     {
         if (!canRun)
             return;
-        #region single algorithm run
-        if (mutationCount < 5)
+        timer += Time.fixedDeltaTime;
+        if (timer >= runTime)
         {
-            //300 generations loop
-            if (generationCount < 250)
+            timer = 0f;
+            generationResults = new float[currentPopulation.Length];
+            for (int i = 0; i < currentPopulation.Length; i++)
+                generationResults[i] = currentPopulation[i].GetAvgPosition().x;
+            PunishAnomalyAndSaveResult();
+            var best = generationResults.Max();
+            if (best > bestEverSolution)
+                bestEverSolution = best;
+            desc.text = string.Format("Generation {0}\nMaxDistance {1}\nCurrent {2}", generationCounter++, bestEverSolution, best);
+            if (generationCount < 600) // don't do this for last iteration
             {
-                timer += Time.fixedDeltaTime;
-                if (timer >= runTime)
-                {
-                    timer = 0f;
-                    generationResults = new float[currentPopulation.Length];
-                    for (int i = 0; i < currentPopulation.Length; i++)
-                        generationResults[i] = currentPopulation[i].GetAvgPosition().x;
-                    PunishAnomalyAndSaveResult();
-                    var best = generationResults.Max();
-                    if (best > bestEverSolution)
-                        bestEverSolution = best;
-                    desc.text = string.Format("Generation {0}\nMaxDistance {1}\nCurrent {2}", generationCounter++, bestEverSolution, best);
-                    if (generationCount < 249) // don't do this for last iteration
-                    {
-                        Selection();
-                        Crossover();
-                        Mutation();
-                        MakePopulation();
-                        generationCount++;
-                    }
-                    else
-                    {
-                        var filename = string.Format("sel_{0}_cross_{1}_mut_{2}_chance_{3}", selectionMethod, crossoverMethod, mutationMethod, mutationChance);
-                        SaveData(filename);
-                        Restart();
-                        MakeFirstRandomPopulation();
-                        generationCount = 0;
-                        if(mutationCount < 4)
-                        {
-                            mutationChance += 0.2f;
-                            mutationCount++;
-                        }
-                        else 
-                        {
-                            if (mutationMethod == MutationMethod.Scramble)
-                            {
-                                if (crossoverMethod == CrossoverMethod.TwoPoint)
-                                {
-                                    if (selectionMethod == SelectionMethod.Ranking)
-                                    {
-                                        canRun = false;
-                                        Debug.Break();
-                                    }
-                                    else
-                                    {
-                                        selectionMethod = (SelectionMethod)((int)selectionMethod + 1);
-                                        crossoverMethod = CrossoverMethod.OnePoint;
-                                        mutationMethod = MutationMethod.Swap;
-                                        mutationCount = 1;
-                                        mutationChance = 0.2f;
-                                    }
-                                }
-                                else
-                                {
-                                    crossoverMethod = (CrossoverMethod)((int)crossoverMethod + 1);
-                                    mutationMethod = MutationMethod.Swap;
-                                    mutationCount = 1;
-                                    mutationChance = 0.2f;
-                                }
-                            }
-                            else
-                            {
-                                mutationMethod = (MutationMethod)((int)mutationMethod + 1);
-                                mutationCount = 1;
-                                mutationChance = 0.2f;
-                            }
-                        }
-                    }
-                }
-            } 
+                Selection();
+                Crossover();
+                Mutation();
+                MakePopulation();
+                generationCount++;
+            }
+            else
+            {
+                SaveData("final-Tournament-TwoPoint-Inversion-03");
+                SaveBestCreature("best-creature");
+                canRun = false;
+                Debug.Break();
+            }
         }
+
+        #region test run
+        //if (mutationCount < 5)
+        //{
+        //    //300 generations loop
+        //    if (generationCount < 50)
+        //    {
+        //        timer += Time.fixedDeltaTime;
+        //        if (timer >= runTime)
+        //        {
+        //            timer = 0f;
+        //            generationResults = new float[currentPopulation.Length];
+        //            for (int i = 0; i < currentPopulation.Length; i++)
+        //                generationResults[i] = currentPopulation[i].GetAvgPosition().x;
+        //            PunishAnomalyAndSaveResult();
+        //            var best = generationResults.Max();
+        //            if (best > bestEverSolution)
+        //                bestEverSolution = best;
+        //            desc.text = string.Format("Generation {0}\nMaxDistance {1}\nCurrent {2}", generationCounter++, bestEverSolution, best);
+        //            if (generationCount < 49) // don't do this for last iteration
+        //            {
+        //                Selection();
+        //                Crossover();
+        //                Mutation();
+        //                MakePopulation();
+        //                generationCount++;
+        //            }
+        //            else
+        //            {
+        //                var filename = string.Format("sel_{0}_cross_{1}_mut_{2}_chance_{3}", selectionMethod, crossoverMethod, mutationMethod, mutationChance);
+        //                SaveData(filename);
+        //                Restart();
+        //                MakeFirstRandomPopulation();
+        //                generationCount = 0;
+        //                if(mutationCount < 3)
+        //                {
+        //                    mutationChance += 0.3f;
+        //                    mutationCount++;
+        //                }
+        //                else 
+        //                {
+        //                    if (mutationMethod == MutationMethod.Scramble)
+        //                    {
+        //                        if (crossoverMethod == CrossoverMethod.TwoPoint)
+        //                        {
+        //                            if (selectionMethod == SelectionMethod.Ranking)
+        //                            {
+        //                                canRun = false;
+        //                                Debug.Break();
+        //                            }
+        //                            else
+        //                            {
+        //                                selectionMethod = (SelectionMethod)((int)selectionMethod + 1);
+        //                                crossoverMethod = CrossoverMethod.OnePoint;
+        //                                mutationMethod = MutationMethod.Swap;
+        //                                mutationCount = 1;
+        //                                mutationChance = 0.3f;
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            crossoverMethod = (CrossoverMethod)((int)crossoverMethod + 1);
+        //                            mutationMethod = MutationMethod.Swap;
+        //                            mutationCount = 1;
+        //                            mutationChance = 0.3f;
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        mutationMethod = (MutationMethod)((int)mutationMethod + 1);
+        //                        mutationCount = 1;
+        //                        mutationChance = 0.3f;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    } 
+        //}
         #endregion
     }
 
@@ -177,12 +206,8 @@ public class GeneticAlgorithm : MonoBehaviour
         var minToSave = generationResults.Where(p => p >= min && p <= max).Min();
         var avgToSave = generationResults.Where(p => p >= min && p <= max).Average();
         var maxToSave = generationResults.Where(p => p >= min && p <= max).Max();
-        saveData.Add(new Triple<float>()
-        {
-            item1 = minToSave,
-            item2 = avgToSave,
-            item3 = maxToSave
-        });
+        var generationResultClone = generationResults.Select(p => p).ToArray();
+        saveData.Add(generationResultClone);
 
         for (int i = 0; i < generationResults.Length; i++)
         {
@@ -396,7 +421,12 @@ public class GeneticAlgorithm : MonoBehaviour
         var builder = new System.Text.StringBuilder();
         foreach (var item in saveData)
         {
-            builder.AppendLine(string.Format("{0};{1};{2}", item.item1.ToString().Replace('.', ','), item.item2.ToString().Replace('.', ','), item.item3.ToString().Replace('.', ',')));
+            for (int i = 0; i < item.Length; i++)
+            {
+                builder.Append(item[i].ToString().Replace('.', ',') + ";");
+            }
+            builder.Append("\n");
+            //builder.AppendLine(string.Format("{0};{1};{2}", item.item1.ToString().Replace('.', ','), item.item2.ToString().Replace('.', ','), item.item3.ToString().Replace('.', ',')));
         }
 
         using (var w = new StreamWriter(@"A:\GA\" + (filename + ".csv"), false))
@@ -407,5 +437,24 @@ public class GeneticAlgorithm : MonoBehaviour
         }
 
         saveData.Clear();
+    }
+
+    public void SaveBestCreature(string filename)
+    {
+        var bestIndex = 0;
+        for (int i = 0; i < generationResults.Length; i++)
+        {
+            if (generationResults[i] > generationResults[bestIndex])
+                bestIndex = i;
+        }
+        var bestCreature = currentPopulation[bestIndex];
+        var json = JsonUtility.ToJson(bestCreature.GetData());
+
+        using (var w = new StreamWriter(@"A:\GA\" + (filename + ".json"), false))
+        {
+            w.WriteLine(json);
+            w.Flush();
+            w.Close();
+        }
     }
 }

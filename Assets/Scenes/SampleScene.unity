@@ -5023,10 +5023,13 @@ MonoBehaviour:
   canRun: 0
   creaturePrefab: {fileID: 7884855371313880867, guid: 0a906a09bffd7cd488cc6c5b2e8485f2,
     type: 3}
-  populationSize: 150
-  creatureSize: 7
+  selectionMethod: 0
+  crossoverMethod: 0
+  mutationMethod: 2
+  populationSize: 100
+  creatureSize: 15
   tournamentSize: 3
-  mutationChance: 0.2
+  mutationChance: 0.3
   runTime: 10
   desc: {fileID: 1143584153}
 --- !u!1 &457506118

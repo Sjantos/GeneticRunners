@@ -18,6 +18,7 @@ public enum MutationMethod
     Scramble
 }
 
+[System.Serializable]
 public class CreatureData
 {
     public Vector3[] positions;
