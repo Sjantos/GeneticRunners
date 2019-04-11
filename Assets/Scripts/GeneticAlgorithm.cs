@@ -58,11 +58,6 @@ public class GeneticAlgorithm : MonoBehaviour
             populationSize++;
         parentsCount = populationSize / 3;
         childCount = 2 * parentsCount;
-        currentPopulation = new Creature[populationSize];
-        parents = new CreatureData[parentsCount];
-        childrens = new CreatureData[childCount];
-
-        MakeFirstRandomPopulation();
     }
 
     int generationCount = 0;
@@ -83,7 +78,7 @@ public class GeneticAlgorithm : MonoBehaviour
             if (best > bestEverSolution)
                 bestEverSolution = best;
             desc.text = string.Format("Generation {0}\nMaxDistance {1}\nCurrent {2}", generationCounter++, bestEverSolution, best);
-            if (generationCount < 600) // don't do this for last iteration
+            if (generationCount < 200) // don't do this for last iteration
             {
                 Selection();
                 Crossover();
@@ -391,7 +386,6 @@ public class GeneticAlgorithm : MonoBehaviour
             data.timers = RandomExtension.RandomArray(creatureSize, 0.1f, 0.4f);
             currentPopulation[i] = InstantiateCreature(data);
         }
-        canRun = true;
     }
 
     private Creature InstantiateCreature(CreatureData data)
@@ -456,5 +450,29 @@ public class GeneticAlgorithm : MonoBehaviour
             w.Flush();
             w.Close();
         }
+    }
+
+    public void StartTest()
+    {
+        currentPopulation = new Creature[populationSize];
+        parents = new CreatureData[parentsCount];
+        childrens = new CreatureData[childCount];
+
+        MakeFirstRandomPopulation();
+        canRun = true;
+    }
+
+    public void Best300()
+    {
+        TextAsset text = Resources.Load<TextAsset>("300gen-best-creature");
+        var data = JsonUtility.FromJson<CreatureData>(text.text);
+        InstantiateCreature(data);
+    }
+
+    public void Best600()
+    {
+        TextAsset text = Resources.Load<TextAsset>("600gen-best-creature");
+        var data = JsonUtility.FromJson<CreatureData>(text.text);
+        InstantiateCreature(data);
     }
 }
