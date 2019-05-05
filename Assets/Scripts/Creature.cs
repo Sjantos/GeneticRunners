@@ -28,12 +28,21 @@ public class CreatureData
 
 public class Creature : MonoBehaviour
 {
+    public static Vector3Bounds positionBounds = new Vector3Bounds(-5f, 5f, -2.5f, 2.5f, 0f, 0f);
+    public static Vector3Bounds randomStepBounds = new Vector3Bounds(-0.5f, 0.5f, -0.25f, 0.25f, 0f, 0f);
+    public static float minMuscleTime = 0.1f;
+    public static float maxMuscleTime = 0.4f;
+
     [SerializeField] GameObject nodePrefab;
     [SerializeField] Node[] nodes;
 
     private Vector3[] positions;
     private int[] structure;
     private float[] timers;
+
+    //data used to specify firefly-specific random move (one for all live of one creature, modified only by parameter - randomMoveScale)
+    private Vector3[] positions2;
+    private float[] timers2;
 
     public CreatureData GetData()
     {
@@ -77,7 +86,7 @@ public class Creature : MonoBehaviour
         }
     }
 
-    public void CreateRandom(CreatureData data)
+    public void CreateRandom(CreatureData data, Vector3[] positions2 = null, float[] timers2 = null)
     {
         this.structure = data.structure;
         this.positions = data.positions;
@@ -87,6 +96,25 @@ public class Creature : MonoBehaviour
         foreach (var node in nodes)
         {
             node.Enable();
+        }
+
+        if (positions2 == null)
+        {
+            this.positions2 = new Vector3[data.positions.Length];
+            this.positions2 = RandomExtension.RandomArray(data.positions.Length, randomStepBounds); 
+        }
+        else
+        {
+            this.positions2 = positions2;
+        }
+        if (timers2 == null)
+        {
+            this.timers2 = new float[data.timers.Length];
+            this.timers2 = RandomExtension.RandomArray(data.timers.Length, 0.25f * minMuscleTime, 0.25f * maxMuscleTime); 
+        }
+        else
+        {
+            this.timers2 = timers2;
         }
     }
 
@@ -111,5 +139,34 @@ public class Creature : MonoBehaviour
                 nodes[parentIndex].AddConnectedNode(nodes[i], timers[i]);
             }
         }
+    }
+
+    public void UpdateCreatureData(CreatureData data)
+    {
+        this.positions = data.positions;
+        this.structure = data.structure;
+        this.timers = data.timers;
+    }
+
+    public CreatureData ApplyRandomStep(CreatureData data, float t)
+    {
+        var posCount = data.positions.Length < this.positions2.Length ? data.positions.Length : this.positions2.Length;
+        for (int i = 0; i < posCount; i++)
+            data.positions[i] += t * this.positions2[i];
+        var timCount = data.timers.Length < this.timers2.Length ? data.timers.Length : this.timers2.Length;
+        for (int i = 0; i < timCount; i++)
+            data.timers[i] += t * this.timers2[i];
+
+        return GetData();
+    }
+
+    public Vector3[] StepPositionsCopy()
+    {
+        return this.positions2.Clone() as Vector3[];
+    }
+
+    public float[] StepTimersCopy()
+    {
+        return this.timers2.Clone() as float[];
     }
 }
